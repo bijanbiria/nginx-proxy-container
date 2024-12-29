@@ -1,0 +1,45 @@
+# Redirect HTTP requests to HTTPS
+server {
+    # Listen for HTTP requests on port 80
+    listen 80;
+
+    # Define the domain name for this server block
+    server_name api.domain.com;
+
+    # Redirect all HTTP requests to HTTPS while preserving the host and URI
+    return 301 https://$host$request_uri;
+}
+
+# Handle HTTPS requests
+server {
+
+    # Listen for HTTPS requests on port 443 with SSL enabled
+    listen 443 ssl;
+
+    # Define the domain name for this server block
+    server_name api.domain.com;
+
+    # Specify the SSL certificate file
+    ssl_certificate    /etc/ssl/domain_cert.pem;
+
+    # Specify the SSL certificate private key
+    ssl_certificate_key    /etc/ssl/domain_private.key;
+
+    # Define the location block for the root path
+    location / {
+        # Include additional configuration for proxy settings
+        include /etc/nginx/includes/proxy.conf;
+
+        # Set a timeout for reading the response from the proxied server
+        proxy_read_timeout 3600;
+
+        # Forward requests to the backend API container
+        proxy_pass http://api_nginx_container;
+    }
+
+    # Disable access logging for this server block
+    access_log off;
+
+    # Define the error log file and set the logging level to "error"
+    error_log  /var/log/nginx/error.log error;
+}
