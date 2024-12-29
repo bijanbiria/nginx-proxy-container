@@ -1,0 +1,21 @@
+services:
+  proxy:
+    image: nginx:1.17-alpine
+    container_name: nginx_proxy
+    networks:
+      - api_app_network
+      - panel_app_network
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./conf.d/:/etc/nginx/conf.d/
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./backend-not-found.html:/var/www/html/backend-not-found.html
+      - ./includes/:/etc/nginx/includes/
+      - ./ssl:/etc/ssl
+networks:
+  api_app_network:
+    external: true
+  panel_app_network:
+    external: true
